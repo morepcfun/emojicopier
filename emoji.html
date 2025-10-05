@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function downloadRealIco(emojiChar) {
         showTooltip('Lager ekte .ico-fil...');
         
-        // Steg 1: Tegn emoji til canvas og få base64 PNG data
+        // Steg 1: Tegn emoji og få base64-data.
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const size = 64;
@@ -163,37 +163,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(emojiChar, size / 2, size / 2 + 2);
-        const base64Png = canvas.toDataURL('image/png');
+        const base64PngUrl = canvas.toDataURL('image/png');
+        const rawBase64 = base64PngUrl.split(',')[1];
 
-        // Steg 2: Send data til eksternt API for konvertering
-        const apiUrl = 'https://realfavicongenerator.net/api/favicon_from_image';
-        const postData = {
-            "favicon_generation": {
-                "master_picture": { "type": "inline", "content": base64Png },
-                "files_location": { "type": "root" },
-                "api_key": "8f95f9d196412822c21c7a26b32b35a5078713a0"
-            }
-        };
+        // Steg 2: Send data til en ny, enklere API for konvertering.
+        const apiUrl = 'https://favi-gen.onrender.com/api/ico';
 
         try {
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(postData)
+                body: JSON.stringify({ base64: rawBase64 })
             });
 
-            const result = await response.json();
-            
-            if (result.favicon_generation_result.result.status === 'error') {
-                throw new Error(result.favicon_generation_result.result.error_message);
+            if (!response.ok) {
+                throw new Error(`API-feil: ${response.statusText}`);
             }
-            
-            // Steg 3: Hent den konverterte ICO-filen fra URLen vi fikk tilbake
-            const icoUrl = result.favicon_generation_result.favicon.ico_url;
-            const icoResponse = await fetch(icoUrl);
-            const icoBlob = await icoResponse.blob();
 
-            // Steg 4: Start nedlasting av den ekte ICO-filen
+            // Steg 3: Motta den konverterte filen direkte som en "blob".
+            const icoBlob = await response.blob();
+
+            // Steg 4: Start nedlasting av den ekte ICO-filen.
             const link = document.createElement('a');
             link.href = URL.createObjectURL(icoBlob);
             link.download = 'favicon.ico';
