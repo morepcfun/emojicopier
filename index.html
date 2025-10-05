@@ -3,83 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emoji Favicon-kode Generator</title>
+<meta name="theme-color" content="#1e1e1e">
+<title>Finn og kopier emojier</title>
+<meta name="description" content="Et fullstendig Emoji-bibliotek hvor du kan lete etter emojier og så kopiere dem, eller kopiere dem som en ferdig favikon-lenke.">
+<meta name="author" content="Johnny Heggelund">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://morepcfun.github.io/emoji/">
 <link rel="icon" href="data:image/png;base64,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">
-
-
 <style>
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #121212;
-    color: #e0e0e0;
-    padding: 20px;
-    margin: 0;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+background-color: #121212;
+color: #e0e0e0;
+padding: 20px;
+margin: 0;
 }
 .container {
-    max-width: 900px;
-    margin: 0 auto;
-    background-color: #252525;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+max-width: 900px;
+margin: 0 auto;
+background-color: #252525;
+padding: 20px;
+border-radius: 8px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 h1 {
-    text-align: center;
-    color: #007bff;
-    margin-top: 0;
+text-align: center;
+color: #007bff;
+margin-top: 0;
 }
 p {
-    text-align: center;
-    color: #eeeeee;
-    margin-top: 0;
+text-align: center;
+color: #eeeeee;
+margin-top: 0;
 }
 #search {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #444;
-    background-color: #1a1a1a;
-    color: #e0e0e0;
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-size: 16px;
+width: 100%;
+padding: 10px;
+margin-bottom: 20px;
+border: 1px solid #444;
+background-color: #1a1a1a;
+color: #e0e0e0;
+border-radius: 6px;
+box-sizing: border-box;
+font-size: 16px;
 }
 #search:focus {
-    outline: none;
-    border-color: #007bff;
+outline: none;
+border-color: #007bff;
 }
 #emoji-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-    gap: 10px;
-    justify-content: center;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 5px;
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+gap: 10px;
+justify-content: center;
+max-height: 60vh;
+overflow-y: auto;
+padding: 5px;
 }
 .emoji {
-    font-size: 32px;
-    cursor: pointer;
-    text-align: center;
-    padding: 5px;
-    border-radius: 5px;
-    transition: background-color 0.4s, transform 0.2s;
+font-size: 32px;
+cursor: pointer;
+text-align: center;
+padding: 5px;
+border-radius: 5px;
+transition: background-color 0.4s, transform 0.2s;
 }
 .emoji:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
+background-color: rgba(255, 255, 255, 0.1);
+transform: scale(1.1);
 }
 .tooltip {
-    position: fixed;
-    background-color: #333;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 14px;
-    opacity: 0;
-    transition: opacity 0.1s;
-    pointer-events: none;
-    z-index: 1000;
+position: fixed;
+background-color: #333;
+color: white;
+padding: 5px 10px;
+border-radius: 5px;
+font-size: 14px;
+opacity: 0;
+transition: opacity 0.1s;
+pointer-events: none;
+z-index: 1000;
 }
 </style>
 </head>
@@ -93,95 +96,82 @@ p {
 <div class="tooltip" id="tooltip">Kopiert!</div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.getElementById('emoji-grid');
-    const searchInput = document.getElementById('search');
-    const tooltip = document.getElementById('tooltip');
-    let emojis = [];
-
-    // Går tilbake til å hente listen online for å alltid ha den oppdatert.
-    // Selve favicon-genereringen er nå 100% offline.
-    fetch('https://cdn.jsdelivr.net/npm/@emoji-mart/data')
-        .then(response => response.json())
-        .then(data => {
-            emojis = Object.values(data.emojis).map(e => ({
-                id: e.id,
-                native: e.skins[0].native,
-                keywords: e.keywords
-            }));
-            displayEmojis(emojis);
-        })
-        .catch(error => {
-            console.error('Feil ved henting av emoji-data:', error);
-            grid.innerHTML = '<p style="color: #ff8a80;">Kunne ikke laste emojiene. Sjekk internett-tilkoblingen din.</p>';
-        });
-
-    function displayEmojis(emojiList) {
-        grid.innerHTML = '';
-        const fragment = document.createDocumentFragment();
-        emojiList.forEach(emoji => {
-            const emojiSpan = document.createElement('span');
-            emojiSpan.className = 'emoji';
-            emojiSpan.textContent = emoji.native;
-            emojiSpan.title = `Venstreklikk: Kopier ${emoji.native}\nHøyreklikk: Kopier favicon-kode`;
-
-            emojiSpan.addEventListener('click', () => {
-                navigator.clipboard.writeText(emoji.native).then(() => {
-                    showTooltip('Emoji kopiert!');
-                });
-            });
-
-            emojiSpan.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                copyFaviconLink(emoji.native);
-            });
-            fragment.appendChild(emojiSpan);
-        });
-        grid.appendChild(fragment);
-    }
-
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const filteredEmojis = emojis.filter(emoji =>
-            emoji.id.includes(query) || emoji.keywords.some(kw => kw.includes(query))
-        );
-        displayEmojis(filteredEmojis);
-    });
-
-    function copyFaviconLink(emojiChar) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const size = 32; // 32x32 er en solid størrelse for favicon
-        canvas.width = size;
-        canvas.height = size;
-        
-        ctx.font = '28px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(emojiChar, size / 2, size / 2 + 1);
-
-        const dataUrl = canvas.toDataURL('image/png');
-        const linkTag = `<link rel="icon" href="${dataUrl}">`;
-
-        navigator.clipboard.writeText(linkTag).then(() => {
-            showTooltip('Favicon-kode kopiert til utklippstavlen!');
-        }).catch(err => {
-            console.error('Klarte ikke kopiere:', err);
-            showTooltip('Kopiering feilet.');
-        });
-    }
-
-    function showTooltip(message) {
-        tooltip.textContent = message;
-        tooltip.style.opacity = '1';
-        setTimeout(() => {
-            tooltip.style.opacity = '0';
-        }, 2500);
-    }
-
-    document.addEventListener('mousemove', (e) => {
-        tooltip.style.left = `${e.pageX + 10}px`;
-        tooltip.style.top = `${e.pageY + 10}px`;
-    });
+const grid = document.getElementById('emoji-grid');
+const searchInput = document.getElementById('search');
+const tooltip = document.getElementById('tooltip');
+let emojis = [];
+fetch('https://cdn.jsdelivr.net/npm/@emoji-mart/data')
+.then(response => response.json())
+.then(data => {
+emojis = Object.values(data.emojis).map(e => ({
+id: e.id,
+native: e.skins[0].native,
+keywords: e.keywords
+}));
+displayEmojis(emojis);
+})
+.catch(error => {
+console.error('Feil ved henting av emoji-data:', error);
+grid.innerHTML = '<p style="color: #ff8a80;">Kunne ikke laste emojiene. Sjekk internett-tilkoblingen din.</p>';
+});
+function displayEmojis(emojiList) {
+grid.innerHTML = '';
+const fragment = document.createDocumentFragment();
+emojiList.forEach(emoji => {
+const emojiSpan = document.createElement('span');
+emojiSpan.className = 'emoji';
+emojiSpan.textContent = emoji.native;
+emojiSpan.title = `Venstreklikk: Kopier ${emoji.native}\nHøyreklikk: Kopier favicon-kode`;
+emojiSpan.addEventListener('click', () => {
+navigator.clipboard.writeText(emoji.native).then(() => {
+showTooltip('Emoji kopiert!');
+});
+});
+emojiSpan.addEventListener('contextmenu', (e) => {
+e.preventDefault();
+copyFaviconLink(emoji.native);
+});
+fragment.appendChild(emojiSpan);
+});
+grid.appendChild(fragment);
+}
+searchInput.addEventListener('input', (e) => {
+const query = e.target.value.toLowerCase();
+const filteredEmojis = emojis.filter(emoji =>
+emoji.id.includes(query) || emoji.keywords.some(kw => kw.includes(query))
+);
+displayEmojis(filteredEmojis);
+});
+function copyFaviconLink(emojiChar) {
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+const size = 32;
+canvas.width = size;
+canvas.height = size;
+ctx.font = '28px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText(emojiChar, size / 2, size / 2 + 1);
+const dataUrl = canvas.toDataURL('image/png');
+const linkTag = `<link rel="icon" href="${dataUrl}">`;
+navigator.clipboard.writeText(linkTag).then(() => {
+showTooltip('Favicon-kode kopiert til utklippstavlen!');
+}).catch(err => {
+console.error('Klarte ikke kopiere:', err);
+showTooltip('Kopiering feilet.');
+});
+}
+function showTooltip(message) {
+tooltip.textContent = message;
+tooltip.style.opacity = '1';
+setTimeout(() => {
+tooltip.style.opacity = '0';
+}, 2500);
+}
+document.addEventListener('mousemove', (e) => {
+tooltip.style.left = `${e.pageX + 10}px`;
+tooltip.style.top = `${e.pageY + 10}px`;
+});
 });
 </script>
 </body>
