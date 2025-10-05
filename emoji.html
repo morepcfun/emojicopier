@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Emoji-finner & Favicon-generator</title>
+<meta name="description" content="Søk etter de nyeste emojiene. Venstreklikk for å kopiere. Høyreklikk for å laste ned en ekte, klar-til-bruk favicon.ico-fil.">
+<meta name="author" content="Johnny Heggelund">
+<link rel="icon" href="data:,">
 
 <style>
 body {
@@ -83,8 +86,8 @@ p {
 </head>
 <body>
 <div class="container">
-<h1>Emoji-finner 🔎 Kopiering 📋 Favicon-nedlasting 💾</h1>
-<p>Søk etter emoji 🔎 Venstreklikk for å kopiere 📋 Høyreklikk for å laste ned en favicon.ico-fil 💾</p>
+<h1>Emoji-finner 🔎 Kopiering 📋 Favicon-generator 💾</h1>
+<p>Søk etter emoji 🔎 Venstreklikk for å kopiere 📋 Høyreklikk for å laste ned en **ekte** favicon.ico-fil 💾</p>
 <input type="text" id="search" placeholder="Søk etter en emoji...">
 <div id="emoji-grid"></div>
 </div>
@@ -96,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tooltip = document.getElementById('tooltip');
     let emojis = [];
 
-    // Henter alltid den nyeste listen med emojier online. Krever internett-tilkobling.
+    // Henter alltid den nyeste listen med emojier online.
     fetch('https://cdn.jsdelivr.net/npm/@emoji-mart/data')
         .then(response => response.json())
         .then(data => {
@@ -119,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const emojiSpan = document.createElement('span');
             emojiSpan.className = 'emoji';
             emojiSpan.textContent = emoji.native;
-            emojiSpan.title = `Venstreklikk: Kopier ${emoji.native}\nHøyreklikk: Last ned som favicon`;
+            emojiSpan.title = `Venstreklikk: Kopier ${emoji.native}\nHøyreklikk: Last ned som ekte .ico-fil`;
 
             emojiSpan.addEventListener('click', () => {
                 navigator.clipboard.writeText(emoji.native).then(() => {
@@ -132,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             emojiSpan.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-                downloadFavicon(emoji.native);
+                downloadRealIco(emoji.native);
             });
             fragment.appendChild(emojiSpan);
         });
@@ -147,28 +150,62 @@ document.addEventListener('DOMContentLoaded', () => {
         displayEmojis(filteredEmojis);
     });
 
-    function downloadFavicon(emojiChar) {
+    async function downloadRealIco(emojiChar) {
+        showTooltip('Lager ekte .ico-fil...');
+        
+        // Steg 1: Tegn emoji til canvas og få base64 PNG data
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const size = 64;
         canvas.width = size;
         canvas.height = size;
-        
-        ctx.font = '56px "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
+        ctx.font = '56px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(emojiChar, size / 2, size / 2 + 2);
+        const base64Png = canvas.toDataURL('image/png');
 
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        // ENDRINGEN ER HER: Filen heter nå .ico
-        link.download = 'favicon.ico';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        showTooltip('Favicon lastet ned!');
+        // Steg 2: Send data til eksternt API for konvertering
+        const apiUrl = 'https://realfavicongenerator.net/api/favicon_from_image';
+        const postData = {
+            "favicon_generation": {
+                "master_picture": { "type": "inline", "content": base64Png },
+                "files_location": { "type": "root" },
+                "api_key": "8f95f9d196412822c21c7a26b32b35a5078713a0"
+            }
+        };
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(postData)
+            });
+
+            const result = await response.json();
+            
+            if (result.favicon_generation_result.result.status === 'error') {
+                throw new Error(result.favicon_generation_result.result.error_message);
+            }
+            
+            // Steg 3: Hent den konverterte ICO-filen fra URLen vi fikk tilbake
+            const icoUrl = result.favicon_generation_result.favicon.ico_url;
+            const icoResponse = await fetch(icoUrl);
+            const icoBlob = await icoResponse.blob();
+
+            // Steg 4: Start nedlasting av den ekte ICO-filen
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(icoBlob);
+            link.download = 'favicon.ico';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showTooltip('Ekte favicon.ico lastet ned!');
+
+        } catch (error) {
+            console.error('Klarte ikke lage ICO-fil:', error);
+            showTooltip('Feil: Klarte ikke lage .ico-fil.');
+        }
     }
 
     function showTooltip(message) {
@@ -176,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tooltip.style.opacity = '1';
         setTimeout(() => {
             tooltip.style.opacity = '0';
-        }, 1500);
+        }, 2500);
     }
 
     document.addEventListener('mousemove', (e) => {
