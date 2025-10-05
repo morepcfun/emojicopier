@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emoji</title>
+<style>
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+background-color: #121212;
+color: #e0e0e0;
+padding: 20px;
+margin: 0;
+}
+.container {
+max-width: 900px;
+margin: 0 auto;
+background-color: #252525;
+padding: 20px;
+border-radius: 8px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+h1 {
+text-align: center;
+color: #007bff;
+margin-top: 0;
+}
+p {
+text-align: center;
+color: #eeeeee;
+margin-top: 0;
+}
+#search {
+width: 100%;
+padding: 10px;
+margin-bottom: 20px;
+border: 1px solid #444;
+background-color: #1a1a1a;
+color: #e0e0e0;
+border-radius: 6px;
+box-sizing: border-box;
+font-size: 16px;
+}
+#search:focus {
+outline: none;
+border-color: #007bff;
+}
+#emoji-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+gap: 10px;
+justify-content: center;
+max-height: 60vh;
+overflow-y: auto;
+padding: 5px;
+}
+.emoji {
+font-size: 32px;
+cursor: pointer;
+text-align: center;
+padding: 5px;
+border-radius: 5px;
+transition: background-color 0.4s, transform 0.2s;
+}
+.emoji:hover {
+background-color: rgba(255, 255, 255, 0.1);
+transform: scale(1.1);
+}
+.tooltip {
+position: fixed;
+background-color: #333;
+color: white;
+padding: 5px 10px;
+border-radius: 5px;
+font-size: 14px;
+opacity: 0;
+transition: opacity 0.1s;
+pointer-events: none;
+z-index: 1000;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Emoji-finner 🔎 Kopiering 📋 Favicon-nedlasting 💾</h1>
+<p>Søk etter emoji 🔎 Venstreklikk for å kopiere 📋 Høyreklikk for å laste ned en favicon.png-fil 💾</p>
+<input type="text" id="search" placeholder="Søk etter en emoji...">
+<div id="emoji-grid"></div>
+</div>
+<div class="tooltip" id="tooltip">Kopiert!</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+const grid = document.getElementById('emoji-grid');
+const searchInput = document.getElementById('search');
+const tooltip = document.getElementById('tooltip');
+let emojis = [];
+fetch('https://cdn.jsdelivr.net/npm/@emoji-mart/data')
+.then(response => response.json())
+.then(data => {
+emojis = Object.values(data.emojis).map(e => ({
+id: e.id,
+native: e.skins[0].native,
+keywords: e.keywords
+}));
+displayEmojis(emojis);
+})
+.catch(error => {
+console.error('Feil ved henting av emoji-data:', error);
+grid.innerHTML = '<p style="color: #ff8a80;">Kunne ikke laste emojiene. Sjekk internett-tilkoblingen din og prøv igjen.</p>';
+});
+function displayEmojis(emojiList) {
+grid.innerHTML = '';
+const fragment = document.createDocumentFragment();
+emojiList.forEach(emoji => {
+const emojiSpan = document.createElement('span');
+emojiSpan.className = 'emoji';
+emojiSpan.textContent = emoji.native;
+emojiSpan.title = `Venstreklikk: Kopier ${emoji.native}\nHøyreklikk: Last ned som favicon`;
+emojiSpan.addEventListener('click', () => {
+navigator.clipboard.writeText(emoji.native).then(() => {
+showTooltip('Emoji kopiert!');
+}).catch(err => {
+console.error('Klarte ikke å kopiere emoji: ', err);
+showTooltip('Kopiering feilet!');
+});
+});
+emojiSpan.addEventListener('contextmenu', (e) => {
+e.preventDefault();
+downloadFavicon(emoji.native);
+});
+fragment.appendChild(emojiSpan);
+});
+grid.appendChild(fragment);
+}
+searchInput.addEventListener('input', (e) => {
+const query = e.target.value.toLowerCase();
+const filteredEmojis = emojis.filter(emoji =>
+emoji.id.includes(query) || emoji.keywords.some(kw => kw.includes(query))
+);
+displayEmojis(filteredEmojis);
+});
+function downloadFavicon(emojiChar) {
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+const size = 64;
+canvas.width = size;
+canvas.height = size;
+ctx.font = '56px "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText(emojiChar, size / 2, size / 2 + 2);
+const link = document.createElement('a');
+link.href = canvas.toDataURL('image/png');
+link.download = 'favicon.png';
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+showTooltip('Favicon lastet ned!');
+}
+function showTooltip(message) {
+tooltip.textContent = message;
+tooltip.style.opacity = '1';
+setTimeout(() => {
+tooltip.style.opacity = '0';
+}, 1500);
+}
+document.addEventListener('mousemove', (e) => {
+tooltip.style.left = `${e.pageX + 10}px`;
+tooltip.style.top = `${e.pageY + 10}px`;
+});
+});
+</script>
+</body>
+</html>
