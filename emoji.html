@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Emoji-finner & Favicon-generator</title>
 <meta name="description" content="Søk etter de nyeste emojiene. Venstreklikk for å kopiere. Høyreklikk for å laste ned en ekte, klar-til-bruk favicon.ico-fil.">
-<meta name="author" content="Johnny Heggelund">
+<meta name="author" content="Johnny Heggelund (Modifisert av Alexandra)">
 <link rel="icon" href="data:,">
 
 <style>
@@ -99,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tooltip = document.getElementById('tooltip');
     let emojis = [];
 
-    // Henter alltid den nyeste listen med emojier online.
     fetch('https://cdn.jsdelivr.net/npm/@emoji-mart/data')
         .then(response => response.json())
         .then(data => {
@@ -112,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error('Feil ved henting av emoji-data:', error);
-            grid.innerHTML = '<p style="color: #ff8a80;">Kunne ikke laste emojiene. Sjekk internett-tilkoblingen din og prøv igjen.</p>';
+            grid.innerHTML = '<p style="color: #ff8a80;">Kunne ikke laste emojiene.</p>';
         });
 
     function displayEmojis(emojiList) {
@@ -125,12 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
             emojiSpan.title = `Venstreklikk: Kopier ${emoji.native}\nHøyreklikk: Last ned som ekte .ico-fil`;
 
             emojiSpan.addEventListener('click', () => {
-                navigator.clipboard.writeText(emoji.native).then(() => {
-                    showTooltip('Emoji kopiert!');
-                }).catch(err => {
-                    console.error('Klarte ikke å kopiere emoji: ', err);
-                    showTooltip('Kopiering feilet!');
-                });
+                navigator.clipboard.writeText(emoji.native).then(() => showTooltip('Emoji kopiert!'));
             });
 
             emojiSpan.addEventListener('contextmenu', (e) => {
@@ -149,48 +143,112 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         displayEmojis(filteredEmojis);
     });
+    
+    // ==================================================================================
+    // INNEBYGD ICO-KONVERTERER
+    // Denne funksjonen konverterer bildedata fra et canvas til en ekte .ico fil-blob.
+    // Kilde: Basert på open source-løsninger for klient-side ICO-generering.
+    // ==================================================================================
+    function createIcoBlob(canvas) {
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const width = imageData.width;
+        const height = imageData.height;
+
+        const fileLength = 22 + (width * height * 4);
+        const buffer = new ArrayBuffer(fileLength);
+        const view = new DataView(buffer);
+
+        // ICO header
+        view.setUint16(0, 0, true); // Reserved
+        view.setUint16(2, 1, true); // Type 1 for ICO
+        view.setUint16(4, 1, true); // Number of images
+
+        // Image directory entry
+        view.setUint8(6, width); // Width
+        view.setUint8(7, height); // Height
+        view.setUint8(8, 0); // Color palette
+        view.setUint8(9, 0); // Reserved
+        view.setUint16(10, 1, true); // Color planes
+        view.setUint16(12, 32, true); // Bits per pixel
+        view.setUint32(14, width * height * 4, true); // Image data size
+        view.setUint32(18, 22, true); // Image data offset
+
+        // BITMAPINFOHEADER
+        let dataOffset = 22;
+        const dibHeaderSize = 40;
+        const imageSize = width * height * 4;
+
+        view.setUint32(dataOffset, dibHeaderSize, true);
+        view.setUint32(dataOffset + 4, width, true);
+        view.setUint32(dataOffset + 8, height * 2, true);
+        view.setUint16(dataOffset + 12, 1, true);
+        view.setUint16(dataOffset + 14, 32, true);
+        view.setUint32(dataOffset + 16, 0, true);
+        view.setUint32(dataOffset + 20, imageSize, true);
+        view.setUint32(dataOffset + 24, 0, true);
+        view.setUint32(dataOffset + 28, 0, true);
+        view.setUint32(dataOffset + 32, 0, true);
+        view.setUint32(dataOffset + 36, 0, true);
+        
+        dataOffset += dibHeaderSize;
+
+        // Image data (pixels are stored bottom-up)
+        for (let y = height - 1; y >= 0; y--) {
+            for (let x = 0; x < width; x++) {
+                const i = (y * width + x) * 4;
+                view.setUint8(dataOffset++, imageData.data[i + 2]); // Blue
+                view.setUint8(dataOffset++, imageData.data[i + 1]); // Green
+                view.setUint8(dataOffset++, imageData.data[i]);     // Red
+                view.setUint8(dataOffset++, imageData.data[i + 3]); // Alpha
+            }
+        }
+        
+        return new Blob([buffer], { type: 'image/x-icon' });
+    }
 
     async function downloadRealIco(emojiChar) {
-        showTooltip('Lager ekte .ico-fil...');
-        
-        // Steg 1: Tegn emoji og få base64-data.
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const size = 64;
-        canvas.width = size;
-        canvas.height = size;
-        ctx.font = '56px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(emojiChar, size / 2, size / 2 + 2);
-        const base64PngUrl = canvas.toDataURL('image/png');
-        const rawBase64 = base64PngUrl.split(',')[1];
-
-        // Steg 2: Send data til en ny, enklere API for konvertering.
-        const apiUrl = 'https://favi-gen.onrender.com/api/ico';
-
+        showTooltip('Lager .ico-fil...');
         try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ base64: rawBase64 })
-            });
+            // Steg 1: Konverter emoji til Unicode hex-kode for Twemoji URL
+            const code = emojiChar.codePointAt(0).toString(16);
+            const twemojiUrl = `https://twemoji.maxcdn.com/v/latest/72x72/${code}.png`;
 
-            if (!response.ok) {
-                throw new Error(`API-feil: ${response.statusText}`);
+            // Steg 2: Last ned Twemoji-bildet
+            const imageResponse = await fetch(twemojiUrl);
+            if (!imageResponse.ok) throw new Error('Fant ikke Twemoji-bilde');
+            const imageBlob = await imageResponse.blob();
+            const imageUrl = URL.createObjectURL(imageBlob);
+
+            // Steg 3: Tegn bildet til et canvas
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 32; // Standard favicon-størrelse
+            canvas.width = size;
+            canvas.height = size;
+            
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, size, size);
+                URL.revokeObjectURL(imageUrl); // Rydd opp
+
+                // Steg 4: Bruk den innebygde konvertereren til å lage en .ico-blob
+                const icoBlob = createIcoBlob(canvas);
+                
+                // Steg 5: Start nedlasting
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(icoBlob);
+                link.download = 'favicon.ico';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showTooltip('Ekte favicon.ico lastet ned!');
+            };
+            img.onerror = () => {
+                 URL.revokeObjectURL(imageUrl);
+                 showTooltip('Feil: Kunne ikke laste emoji-bilde.');
             }
-
-            // Steg 3: Motta den konverterte filen direkte som en "blob".
-            const icoBlob = await response.blob();
-
-            // Steg 4: Start nedlasting av den ekte ICO-filen.
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(icoBlob);
-            link.download = 'favicon.ico';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showTooltip('Ekte favicon.ico lastet ned!');
+            img.src = imageUrl;
 
         } catch (error) {
             console.error('Klarte ikke lage ICO-fil:', error);
@@ -201,9 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showTooltip(message) {
         tooltip.textContent = message;
         tooltip.style.opacity = '1';
-        setTimeout(() => {
-            tooltip.style.opacity = '0';
-        }, 2500);
+        setTimeout(() => { tooltip.style.opacity = '0'; }, 2500);
     }
 
     document.addEventListener('mousemove', (e) => {
